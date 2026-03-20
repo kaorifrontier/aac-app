@@ -71,13 +71,15 @@
     <span class="label">ゆーちゅーぶ</span>
   </button>
 
-  <button id="endBtn" class="main-btn" onclick="press(this)" ondblclick="editTextOnly(this, 'end')">
+  <button id="endBtn" class="main-btn" onclick="press(this)" ondblclick="editButton(this, 'uploadEnd', 'end')">
+    <img src="batu.png" alt="おわり">
     <span class="label">おわり</span>
   </button>
 
   <input type="file" id="uploadWater" accept="image/*">
   <input type="file" id="uploadToy" accept="image/*">
   <input type="file" id="uploadYT" accept="image/*">
+  <input type="file" id="uploadEnd" accept="image/*">
 
   <script>
     let ignoreNextClick = false;
@@ -118,11 +120,6 @@
       } else if (choice === "2") {
         openUpload(inputId);
       }
-    }
-
-    function editTextOnly(button, keyName) {
-      ignoreNextClick = true;
-      changeLabel(button, keyName);
     }
 
     function changeLabel(button, keyName) {
@@ -183,6 +180,7 @@
       loadSavedImage("water", "#waterBtn img");
       loadSavedImage("toy", "#toyBtn img");
       loadSavedImage("yt", "#ytBtn img");
+      loadSavedImage("end", "#endBtn img");
     }
 
     function loadSavedLabel(keyName, buttonSelector) {
@@ -216,6 +214,7 @@
     setupUpload("uploadWater", "#waterBtn img", "water");
     setupUpload("uploadToy", "#toyBtn img", "toy");
     setupUpload("uploadYT", "#ytBtn img", "yt");
+    setupUpload("uploadEnd", "#endBtn img", "end");
 
     loadSavedData();
   </script>
