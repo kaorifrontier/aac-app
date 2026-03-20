@@ -56,22 +56,22 @@
 </head>
 <body>
 
-  <button id="waterBtn" class="main-btn" onclick="press(this)" ondblclick="editButton(this, 'uploadWater')">
+  <button id="waterBtn" class="main-btn" onclick="press(this)" ondblclick="editButton(this, 'uploadWater', 'water')">
     <img src="water.jpg" alt="みず">
     <span class="label">みず</span>
   </button>
 
-  <button id="toyBtn" class="main-btn" onclick="press(this)" ondblclick="editButton(this, 'uploadToy')">
+  <button id="toyBtn" class="main-btn" onclick="press(this)" ondblclick="editButton(this, 'uploadToy', 'toy')">
     <img src="toy.jpg" alt="おもちゃ">
     <span class="label">おもちゃ</span>
   </button>
 
-  <button id="ytBtn" class="main-btn" onclick="press(this)" ondblclick="editButton(this, 'uploadYT')">
+  <button id="ytBtn" class="main-btn" onclick="press(this)" ondblclick="editButton(this, 'uploadYT', 'yt')">
     <img src="youtube.jpg" alt="ゆーちゅーぶ">
     <span class="label">ゆーちゅーぶ</span>
   </button>
 
-  <button id="endBtn" class="main-btn" onclick="press(this)" ondblclick="editTextOnly(this)">
+  <button id="endBtn" class="main-btn" onclick="press(this)" ondblclick="editTextOnly(this, 'end')">
     <span class="label">おわり</span>
   </button>
 
@@ -105,7 +105,7 @@
       }, 800);
     }
 
-    function editButton(button, inputId) {
+    function editButton(button, inputId, keyName) {
       ignoreNextClick = true;
 
       const choice = prompt(
@@ -114,18 +114,18 @@
       );
 
       if (choice === "1") {
-        changeLabel(button);
+        changeLabel(button, keyName);
       } else if (choice === "2") {
         openUpload(inputId);
       }
     }
 
-    function editTextOnly(button) {
+    function editTextOnly(button, keyName) {
       ignoreNextClick = true;
-      changeLabel(button);
+      changeLabel(button, keyName);
     }
 
-    function changeLabel(button) {
+    function changeLabel(button, keyName) {
       const label = button.querySelector(".label");
       if (!label) return;
 
@@ -133,12 +133,15 @@
       const newText = prompt("あたらしい ことばを いれてください", currentText);
 
       if (newText && newText.trim() !== "") {
-        label.textContent = newText.trim();
+        const cleanedText = newText.trim();
+        label.textContent = cleanedText;
 
         const img = button.querySelector("img");
         if (img) {
-          img.alt = newText.trim();
+          img.alt = cleanedText;
         }
+
+        localStorage.setItem("label_" + keyName, cleanedText);
       }
     }
 
@@ -149,7 +152,7 @@
       }
     }
 
-    function setupUpload(inputId, imgSelector) {
+    function setupUpload(inputId, imgSelector, keyName) {
       const input = document.getElementById(inputId);
 
       input.addEventListener("change", function (event) {
@@ -162,6 +165,7 @@
           const img = document.querySelector(imgSelector);
           if (img) {
             img.src = e.target.result;
+            localStorage.setItem("image_" + keyName, e.target.result);
           }
         };
 
@@ -170,9 +174,50 @@
       });
     }
 
-    setupUpload("uploadWater", "#waterBtn img");
-    setupUpload("uploadToy", "#toyBtn img");
-    setupUpload("uploadYT", "#ytBtn img");
+    function loadSavedData() {
+      loadSavedLabel("water", "#waterBtn");
+      loadSavedLabel("toy", "#toyBtn");
+      loadSavedLabel("yt", "#ytBtn");
+      loadSavedLabel("end", "#endBtn");
+
+      loadSavedImage("water", "#waterBtn img");
+      loadSavedImage("toy", "#toyBtn img");
+      loadSavedImage("yt", "#ytBtn img");
+    }
+
+    function loadSavedLabel(keyName, buttonSelector) {
+      const savedLabel = localStorage.getItem("label_" + keyName);
+      if (!savedLabel) return;
+
+      const button = document.querySelector(buttonSelector);
+      if (!button) return;
+
+      const label = button.querySelector(".label");
+      if (label) {
+        label.textContent = savedLabel;
+      }
+
+      const img = button.querySelector("img");
+      if (img) {
+        img.alt = savedLabel;
+      }
+    }
+
+    function loadSavedImage(keyName, imgSelector) {
+      const savedImage = localStorage.getItem("image_" + keyName);
+      if (!savedImage) return;
+
+      const img = document.querySelector(imgSelector);
+      if (img) {
+        img.src = savedImage;
+      }
+    }
+
+    setupUpload("uploadWater", "#waterBtn img", "water");
+    setupUpload("uploadToy", "#toyBtn img", "toy");
+    setupUpload("uploadYT", "#ytBtn img", "yt");
+
+    loadSavedData();
   </script>
 
 </body>
