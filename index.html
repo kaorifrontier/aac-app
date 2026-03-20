@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>つたえるボード</title>
+
+<style>
+body{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr 1fr;
+  height:100vh;
+  margin:0;
+  gap:10px;
+}
+
+button{
+  font-size:40px;
+  border:3px solid black;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:white;
+}
+
+img{
+  width:80%;
+  height:60%;
+  object-fit:cover;
+}
+
+input[type="file"]{
+  display:none; /* 隠す */
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ボタンたち -->
+<button id="waterBtn" onclick="press(this,'みず')">
+  <img src="water.jpg">
+  みず
+</button>
+
+<button id="toyBtn" onclick="press(this,'おもちゃ')">
+  <img src="toy.jpg">
+  おもちゃ
+</button>
+
+<button id="ytBtn" onclick="press(this,'ゆーちゅーぶ')">
+  <img src="youtube.jpg">
+  ゆーちゅーぶ
+</button>
+
+<button id="endBtn" onclick="press(this,'おわり')">
+  おわり
+</button>
+
+<!-- 保護者用アップロードボタン -->
+<input type="file" id="uploadWater" accept="image/*">
+<input type="file" id="uploadToy" accept="image/*">
+<input type="file" id="uploadYT" accept="image/*">
+
+<script>
+
+// 押すと音が鳴り、ボタンが光る関数
+function press(button,text){
+  // 光らせる
+  button.style.background="lightgreen";
+
+  // 音声再生
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang='ja-JP';
+  speechSynthesis.speak(msg);
+
+  // 1秒後に元に戻す
+  setTimeout(()=>{
+    button.style.background="white";
+  },1000);
+}
+
+// 写真をアップロードする関数
+function setupUpload(inputId, imgSelector){
+  const input = document.getElementById(inputId);
+  input.addEventListener('change', function(event){
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const img = document.querySelector(imgSelector);
+      img.src = e.target.result;
+    }
+    reader.readAsDataURL(file);
+  });
+}
+
+// 各ボタンにアップロード設定
+setupUpload('uploadWater','#waterBtn img');
+setupUpload('uploadToy','#toyBtn img');
+setupUpload('uploadYT','#ytBtn img');
+
+// デバッグ用: タッチしたらアップロード（任意）
+// document.getElementById('waterBtn').addEventListener('dblclick', ()=>{ document.getElementById('uploadWater').click(); });
+
+</script>
+
+</body>
+</html>
