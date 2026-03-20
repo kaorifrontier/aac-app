@@ -18,7 +18,7 @@
       background: #f5f5f5;
     }
 
-    button {
+    .main-btn {
       font-size: 40px;
       border: 3px solid black;
       border-radius: 16px;
@@ -31,14 +31,22 @@
       height: 100%;
       padding: 10px;
       box-sizing: border-box;
+      overflow: hidden;
     }
 
-    img {
+    .main-btn img {
       width: 80%;
       height: 60%;
       object-fit: cover;
       border-radius: 12px;
       margin-bottom: 12px;
+    }
+
+    .label {
+      font-size: 40px;
+      line-height: 1.2;
+      word-break: break-word;
+      text-align: center;
     }
 
     input[type="file"] {
@@ -48,23 +56,23 @@
 </head>
 <body>
 
-  <button id="waterBtn" ondblclick="openUpload('uploadWater')" onclick="press(this,'みず')">
+  <button id="waterBtn" class="main-btn" onclick="press(this)" ondblclick="editButton(this, 'uploadWater')">
     <img src="water.jpg" alt="みず">
-    みず
+    <span class="label">みず</span>
   </button>
 
-  <button id="toyBtn" ondblclick="openUpload('uploadToy')" onclick="press(this,'おもちゃ')">
+  <button id="toyBtn" class="main-btn" onclick="press(this)" ondblclick="editButton(this, 'uploadToy')">
     <img src="toy.jpg" alt="おもちゃ">
-    おもちゃ
+    <span class="label">おもちゃ</span>
   </button>
 
-  <button id="ytBtn" ondblclick="openUpload('uploadYT')" onclick="press(this,'ゆーちゅーぶ')">
+  <button id="ytBtn" class="main-btn" onclick="press(this)" ondblclick="editButton(this, 'uploadYT')">
     <img src="youtube.jpg" alt="ゆーちゅーぶ">
-    ゆーちゅーぶ
+    <span class="label">ゆーちゅーぶ</span>
   </button>
 
-  <button id="endBtn" onclick="press(this,'おわり')">
-    おわり
+  <button id="endBtn" class="main-btn" onclick="press(this)" ondblclick="editTextOnly(this)">
+    <span class="label">おわり</span>
   </button>
 
   <input type="file" id="uploadWater" accept="image/*">
@@ -72,21 +80,73 @@
   <input type="file" id="uploadYT" accept="image/*">
 
   <script>
-    function press(button, text) {
+    let ignoreNextClick = false;
+
+    function press(button) {
+      if (ignoreNextClick) {
+        ignoreNextClick = false;
+        return;
+      }
+
       button.style.background = "lightgreen";
 
-      const msg = new SpeechSynthesisUtterance(text);
-      msg.lang = "ja-JP";
-      speechSynthesis.cancel();
-      speechSynthesis.speak(msg);
+      const label = button.querySelector(".label");
+      const text = label ? label.textContent.trim() : "";
+
+      if (text) {
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = "ja-JP";
+        speechSynthesis.cancel();
+        speechSynthesis.speak(msg);
+      }
 
       setTimeout(() => {
         button.style.background = "white";
       }, 800);
     }
 
+    function editButton(button, inputId) {
+      ignoreNextClick = true;
+
+      const choice = prompt(
+        "編集する内容を入力してください:\n1 = ことばを変える\n2 = しゃしんを変える",
+        "1"
+      );
+
+      if (choice === "1") {
+        changeLabel(button);
+      } else if (choice === "2") {
+        openUpload(inputId);
+      }
+    }
+
+    function editTextOnly(button) {
+      ignoreNextClick = true;
+      changeLabel(button);
+    }
+
+    function changeLabel(button) {
+      const label = button.querySelector(".label");
+      if (!label) return;
+
+      const currentText = label.textContent.trim();
+      const newText = prompt("あたらしい ことばを いれてください", currentText);
+
+      if (newText && newText.trim() !== "") {
+        label.textContent = newText.trim();
+
+        const img = button.querySelector("img");
+        if (img) {
+          img.alt = newText.trim();
+        }
+      }
+    }
+
     function openUpload(inputId) {
-      document.getElementById(inputId).click();
+      const input = document.getElementById(inputId);
+      if (input) {
+        input.click();
+      }
     }
 
     function setupUpload(inputId, imgSelector) {
@@ -100,12 +160,12 @@
 
         reader.onload = function (e) {
           const img = document.querySelector(imgSelector);
-          img.src = e.target.result;
+          if (img) {
+            img.src = e.target.result;
+          }
         };
 
         reader.readAsDataURL(file);
-
-        // 同じ画像をもう一回選べるようにする
         input.value = "";
       });
     }
